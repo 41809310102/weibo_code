@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>获取记录</title>
+    <script src="https://cdn.lyshark.com/javascript/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/layui-main/dist/css/layui.css">
+    <script src="/layui-main/dist/layui.js"></script>
+    <link rel="stylesheet" href="../static/layui-main/dist/css/layui.css">
+    <script src="../static/layui-main/dist/layui.js"></script>
+</head>
+<body>
+<div style="margin-top: 30px;margin-left: 30px">
+    <ul id="ul_data">
+    </ul>
+</div>
+
+</body>
+<script>
+        selectValue();
+      //用户登陆
+        list = ""
+        function selectValue() {
+            $.ajax({
+              url: "http://127.0.0.1:5001/weibo/get_wblog",
+              type: 'get',
+              dataType:'json',
+              success(res){
+                  if(res.code==1){
+                      var len  = res.data.length;
+                      for(var i = 0;i<len;i++){
+                         list+= ' <li style="margin-top: 10px">' +'<a href="'+res.data[i].url+'" style="color: blue;font-size: 16px">'+"爬取时间:"+ res.data[i].createTime + " 微博事件:" +res.data[i].name +'</a>'+'</li>'
+                      }
+                      document.getElementById('ul_data').innerHTML = list;
+                  }else{
+                      console.log(res.code)
+                      alert("当前不存在事件数据")
+                  }
+              }
+          })
+
+    }
+</script>
+</html>

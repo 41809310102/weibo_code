@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="never">
+    <title>数据获取</title>
+    <script src="https://cdn.lyshark.com/javascript/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/layui-main/dist/css/layui.css">
+    <script src="/layui-main/dist/layui.js"></script>
+    <link rel="stylesheet" href="../static/layui-main/dist/css/layui.css">
+    <script src="../static/layui-main/dist/layui.js"></script>
+</head>
+<body>
+<div style="margin-top: 10px">
+  <pre class="layui-code">
+      <div id="textcommit">
+      </div>
+</pre>
+</div>
+<form class="layui-form" action="">
+  <div class="layui-form-item">
+    <label class="layui-form-label">热点地址</label>
+    <div class="layui-input-block">
+      <input type="url_name" name="url_name" required  value="https://m.weibo.cn/" lay-verify="required" placeholder="请输入事件地址" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+    <div class="layui-form-item">
+    <label class="layui-form-label">热点事件名</label>
+    <div class="layui-input-block">
+      <input type="name" name="name" required  lay-verify="required" placeholder="请输入事件名称" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+    <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">登录cookie</label>
+    <div class="layui-input-block">
+      <textarea name="cookie" placeholder="请输入登录cookie" class="layui-textarea"></textarea>
+    </div>
+  </div>
+    <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">评论地址</label>
+    <div class="layui-input-block">
+      <textarea name="comment" placeholder="请输入评论地址" class="layui-textarea"></textarea>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">选择框</label>
+    <div class="layui-input-block">
+      <select name="type" lay-verify="required">
+        <option value=""></option>
+        <option value="政治">政治</option>
+        <option value="科技">科技</option>
+        <option value="社会">社会</option>
+        <option value="明星">明星</option>
+        <option value="电影">电影</option>
+        <option value="同城">同城</option>
+        <option value="数码">数码</option>
+      </select>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">反封开关</label>
+    <div class="layui-input-block">
+      <input type="checkbox" name="switch" lay-skin="switch">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">保存数据？</label>
+    <div class="layui-input-block">
+      <input type="radio" name="save" value="是" title="是">
+      <input type="radio" name="save" value="否" title="否" checked>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+
+
+<script>
+//Demo
+layui.code({
+  title: '评论数据'
+  ,skin: 'notepad' //如果要默认风格，不用设定该key。
+});
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+      let list1 = '';
+              layui.layer.load();
+                        //console.log(Lodingindex) opacity
+           $(".layui-layer-shade").css('background', '#000000')
+           $(".layui-layer-shade").css('opacity', '0.2')
+            $.ajax({
+                type:'post',
+                url:'/weibo/weibo_data',
+                data:data.field,
+                dataType:'json',
+                success: function (result) {
+                    layer.closeAll();
+                    if (result.code==1){
+                        layer.msg(result.msg,{icon:1});
+                           list1+= ' <text class="title2">' +result.data + '</text>'
+                        document.getElementById('textcommit').innerHTML = list1;
+                             layui.layer.closeAll();
+                    }else{
+                        layer.msg(result.msg,{icon:5});
+                         layui.layer.closeAll();
+                    }
+                }
+            })
+
+    return false;
+  });
+});
+</script>
+<div style="height:200px">
+</div>
+
+
+<style type="text/css">
+    .layui-table-cell {
+            height: auto;
+            line-height: 120px;
+        }
+    .layui-table img{
+        max-width:100%
+    }
+</style>
+
+<script>
+
+</script>
+</body>
+</html>

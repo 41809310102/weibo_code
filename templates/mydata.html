@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <title>事件用户情绪分析</title>
+    <script src="https://cdn.lyshark.com/javascript/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.lyshark.com/javascript/echarts/5.0.0/echarts.min.js"></script>
+    <script src="https://cdn.lyshark.com/javascript/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/layui-main/dist/css/layui.css">
+    <script src="/layui-main/dist/layui.js"></script>
+    <link rel="stylesheet" href="../static/layui-main/dist/css/layui.css">
+    <script src="../static/layui-main/dist/layui.js"></script>
+</head>
+
+<body>
+    <div style="margin-top: 10px;background-color: #dfe8e8;">
+    <form class="layui-form" action="" style="margin-top: 10px">
+   <div class="layui-form-item">
+    <label class="layui-form-label">分析事件:</label>
+    <div class="layui-input-block">
+      <input type="text" name="title" required  lay-verify="required" placeholder="请输入事件标题" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+   <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">立即分析</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+  </form>
+    </div>
+    <div class="box">
+        <div class="box1">
+            <div class="panel-body">
+			<div id="sum" style="width:80%; height: 300px;margin-left: 30px"></div>
+		</div>
+        </div>
+        <div class="box1">
+             <div class="panel-body">
+			<div id="grade" style="width:100%; height: 300px"></div>
+		</div>
+        </div>
+    </div>
+
+    <div class="boxs">
+        <div class="boxs1">
+            <div class="panel-body">
+			<div id="years" style="width:80%; height: 350px; margin-top: 10px; margin-left: 30px"></div>
+		</div>
+        </div>
+        <div class="boxs1">
+             <div class="panel-body">
+			<div id="country" style="width:100%; height: 350px"></div>
+		</div>
+        </div>
+    </div>
+
+    <div class="boxs">
+        <div class="boxs1">
+            <div class="panel-body">
+			<div id="time_long" style="width:80%; height: 350px; margin-top: 10px; margin-left: 30px"></div>
+		</div>
+        </div>
+         <div class="boxs1">
+            <div class="panel-body">
+			<img src="/img/doubanTop10cloud.png" style="width:98%; height: 330px; margin-top: 5px; margin-left: 5px"></img>
+		</div>
+        </div>
+    </div>
+
+    <div style="height: 200px">
+
+    </div>
+
+
+</body>
+
+<style>
+    .box{
+        width: 100%;
+        height: 400px;
+        background-color: #dfe8e8;
+        display: flex;
+    }
+    .box .box1{
+        margin-left: 10px;
+        width: 50%;
+        height: 90%;
+        background-color: rgba(233, 238, 238, 0.05);
+        box-shadow: 0 0 2px 1px #cecdcd;
+    }
+    .boxs{
+        margin-top: 2px;
+        width: 100%;
+        height: 400px;
+        background-color: #dfe8e8;
+        display: flex;
+    }
+    .boxs .boxs1{
+        margin-top: 20px;
+        margin-left: 10px;
+        width: 50%;
+        height: 90%;
+        background-color: rgba(205, 227, 227, 0.09);
+       box-shadow: 0 0 2px 1px #cecdcd;
+    }
+</style>
+
+<script>
+    //Demo
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(formDemo)', function(data){
+    layer.msg("正在分析该事件请稍后......");
+     show_data(data.field.title)
+    return false;
+  });
+});
+    get_num()
+    const ip = "http://127.0.0.1:5001/";
+        //展示可视化图表
+       function show_data(name){
+            get_grade(name)
+            get_year(name)
+            get_country(name)
+            get_time(name)
+        }
+
+       function  get_num(){
+           var kv = new Array();
+		kv = {{ data | safe }}
+		var test = new Array();
+		for(var logkey in kv){
+			test.push( {value:kv[logkey], name:logkey} )
+		}
+			var main = echarts.init(document.getElementById("sum"));
+			var option = {
+			      title: {
+                   text: '平台已经收集的热点事件类型汇总'
+                  },
+				legend: {
+					orient: 'vertical',
+					left: 'right',
+				},
+				series: [
+					{
+						type: 'pie',
+						radius: '70%',
+						center: ['50%', '50%'],
+						detail: {formatter:'{value}'},
+						data: test
+					}
+				]
+			};
+			main.setOption(option,true);
+       }
+
+       function  get_grade(name){
+            layui.layer.load();
+                        //console.log(Lodingindex) opacity
+           $(".layui-layer-shade").css('background', '#000000')
+           $(".layui-layer-shade").css('opacity', '0.2')
+           //数据请求
+         $.ajax({
+              url: ip+"/chart/read_file?name="+name,
+              processData:false,
+              data:"",
+              contentType:'application/json;charset=utf-8',
+              type: 'get',
+              dataType: 'json',
+           success(data){
+              if(data.code == 0){
+                    layui.layer.closeAll();
+                  var main1 = echarts.init(document.getElementById("grade"));
+            var option = {
+                    title: {
+                     text: '用户情绪分数表'
+              },
+              tooltip: {
+              trigger: 'axis',
+                  axisPointer: {
+                   type: 'shadow'
+                  }
+           },
+              legend: {},
+              grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+              },
+              xAxis: {
+                   type: 'value',
+                   boundaryGap: [0, 0.01]
+              },
+           yAxis: {
+             type: 'category',
+             data: data.data
+          },
+           series: [
+               {
+             name: 'NLP情感分析数据',
+             type: 'bar',
+             data: data.value
+            },
+           ]
+         };
+			main1.setOption(option,true);
+              }else{
+                  layer.msg(data.msg,{icon:5});
+                  layui.layer.closeAll();
+              }
+           }
+          })
+       }
+
+       function  get_year(name){
+           $.ajax({
+               url: ip+"/chart/year?name="+name,
+               processData:false,
+               data:"",
+               contentType:'application/json;charset=utf-8',
+               type: 'get',
+               dataType: 'json',
+               success(data) {
+                    var main2 = echarts.init(document.getElementById("years"));
+           var option = {
+              title: {
+                   text: '情绪分布直方图'
+               },
+               tooltip: {
+               trigger: 'axis'
+                 },
+              xAxis: {
+              type: 'category',
+                  data: data.data
+              },
+              yAxis: {
+               type: 'value',
+                  axisLabel: {
+                    formatter: '{value} 位'
+                   }
+              },
+              series: [
+              {
+              data: data.value,
+              type: 'line'
+              }
+             ]
+          };
+          option && main2.setOption(option);
+               }
+           })
+       }
+
+       function  get_country(name){
+          $.ajax({
+              url: ip + "/chart/country?name="+name,
+              processData: false,
+              data:"",
+              contentType: 'application/json;charset=utf-8',
+              type: 'get',
+              dataType: 'json',
+              success(data) {
+                    var main3 = echarts.init(document.getElementById("country"));
+                    var option = {
+                title: {
+                   text: '热门地区用户评论统计'
+               },
+            xAxis: {
+             type: 'category',
+             data: data.data,
+              },
+             yAxis: {
+               type: 'value'
+               },
+              series: [
+            {
+                 data: data.value,
+                 type: 'bar',
+                 showBackground: true,
+                 backgroundStyle: {color: 'rgba(180, 180, 180, 0.2)'
+             }
+    }
+  ]
+};
+                    option && main3.setOption(option);
+              }
+          })
+       }
+
+       function get_time(name){
+              $.ajax({
+                  url: ip + "/chart/time?name="+name,
+                  processData: false,
+                  data:"",
+                  contentType: 'application/json;charset=utf-8',
+                  type: 'get',
+                  dataType: 'json',
+                  success(data) {
+                   if(data.code == 1){
+                       var main4 = echarts.init(document.getElementById("time_long"));
+		        	   var option = {
+			          title: {
+                       text: '用户情绪积极.消极.中性比例'
+                       },
+				      legend: {orient: 'vertical',
+					left: 'right',
+			      	},
+				   series: [
+				    	{
+				     		type: 'pie',
+				    		radius: '70%',
+				    		center: ['50%', '50%'],
+				    		detail: {formatter:'{value}'},
+				    		data: data.data
+				    	}
+				     ]
+			      };
+		        	   main4.setOption(option,true);
+                   }
+                  }
+              })
+       }
+
+</script>
+
+</html>
